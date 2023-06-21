@@ -32,8 +32,14 @@ Please write your answers to following questions.
 > _..._
 
 > **For the refactoring, would you change something else if you had more time?**
->
-> _..._
+>> There is always a room to make better and better your code.
+> ###Approach I have used to refactor ItemController code.
+> **Based on the current ItemController code, here are some areas that can be improved in the ItemController:**
+> 1. Separate validation rules into reusable variables: The validation rules for store and update methods are identical. To avoid duplication and improve code maintainability, you can extract the validation rules into separate variables and reuse them in both methods.
+> 2. Move the CommonMarkConverter instantiation to a separate method: The CommonMarkConverter is used in both the store and update methods. Instead of duplicating the code, you can create a separate method to instantiate the converter and reuse it in both methods.
+> 3. Simplify JSON response creation: The creation of JSON responses can be simplified using Laravel's response() helper function instead of explicitly creating JsonResponse instances. This change simplifies the code and improves readability.
+> 4. Remove unnecessary findOrFail calls: In the show and update methods, the findOrFail method is used to retrieve the Item model. Instead, you can use the find method, which returns null if the item is not found, and handle the case separately if needed.
+> 5. Changed $request->get to $request->input for 2 reasons: First is the recommended usage is ->input() as it is a little bit more powerfull because it can parse nested data more fluently. Secondly, I prefer to write $request->input :)
 
 ## Running the project
 This project requires a database to run. For the server part, you can use `php artisan serve`
