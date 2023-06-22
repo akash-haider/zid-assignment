@@ -31,9 +31,8 @@ class ItemStatisticsController extends Controller
 
     private function getTotalPriceOfItemsAddedCurrentMonth(): string
     {
-        $currentMonth = now()->format('Y-m');
-
-        $response = Item::whereRaw("DATE_FORMAT(created_at, '%Y-%m') = '$currentMonth'")
+        $response = Item::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->sum('price');
 
         return number_format($response, 2);
@@ -53,16 +52,23 @@ class ItemStatisticsController extends Controller
 
     public function showSpecificStat(Request $request, $option): JsonResponse
     {
-        if ($option === 'total_items') {
-            $result = $this->getTotalItemsCount();
-        } elseif ($option === 'average_price') {
-            $result = $this->getAveragePriceItem();
-        } elseif ($option === 'website_highest_price') {
-            $result = $this->getWebsiteWithHighestTotalPrice();
-        } elseif ($option === 'total_price_current_month') {
-            $result = $this->getTotalPriceOfItemsAddedCurrentMonth();
-        }else{
-            return response()->json(['message' => 'invalid parameter'], 404);
+        $result = null;
+
+        switch ($option) {
+            case 'total_items':
+                $result = $this->getTotalItemsCount();
+                break;
+            case 'average_price':
+                $result = $this->getAveragePriceItem();
+                break;
+            case 'website_highest_price':
+                $result = $this->getWebsiteWithHighestTotalPrice();
+                break;
+            case 'total_price_current_month':
+                $result = $this->getTotalPriceOfItemsAddedCurrentMonth();
+                break;
+            default:
+                return response()->json(['message' => 'Invalid parameter'], 404);
         }
 
         return response()->json(['statistics' => [$option => $result]]);
