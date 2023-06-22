@@ -74,8 +74,10 @@ The project also includes some helpful CLI commands:
 
 
 > **For the refactoring, would you change something else if you had more time?**
->> Continuous improvement is essential in code development, as there is always an opportunity to enhance your code further.
- ###Approach I have used to refactor ItemController code.
+ 
+*Answer: Continuous improvement is essential in code development, as there is always an opportunity to enhance your code further.*
+ 
+## Approach I have used to refactor ItemController code.
  **Based on the current ItemController code, here are some areas that can be improved in the ItemController:**
  - Separate validation rules into reusable variables: The validation rules for store and update methods are identical. To avoid duplication and improve code maintainability, you can extract the validation rules into separate variables and reuse them in both methods.
  - Move the CommonMarkConverter instantiation to a separate method: The CommonMarkConverter is used in both the store and update methods. Instead of duplicating the code, you can create a separate method to instantiate the converter and reuse it in both methods.
