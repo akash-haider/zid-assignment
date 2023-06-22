@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemStatisticsController extends Controller
 {
@@ -20,11 +20,23 @@ class ItemStatisticsController extends Controller
         return number_format($average, 2);
     }
 
-    private function getWebsiteWithHighestTotalPrice(): string
+    private function getWebsiteWithHighestPrice(): string
     {
-        $response = Item::where('price', function ($query) {
-            $query->selectRaw('MAX(price)')->from('items');
-        })->pluck('url')->first();
+        $response = Item::orderByDesc('price')
+            ->pluck('url')->first();
+
+        return $response;
+    }
+
+    private function getWebsiteWithHighestTotalPriceItems(): string
+    {
+        $response = Item::select([
+            DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(url, '/', 3), '://', -1) AS domain"),
+            DB::raw("SUM(price) AS total_price")
+        ])
+            ->groupBy('domain')
+            ->orderByDesc('total_price')
+            ->pluck('domain')->first();
 
         return $response;
     }
@@ -43,14 +55,15 @@ class ItemStatisticsController extends Controller
         $statistics = [
             'total_items' => $this->getTotalItemsCount(),
             'average_price' => $this->getAveragePriceItem(),
-            'website_highest_price' => $this->getWebsiteWithHighestTotalPrice(),
+            'website_highest_price' => $this->getWebsiteWithHighestPrice(),
+            'website_highest_total_price_items' => $this->getWebsiteWithHighestTotalPriceItems(),
             'total_price_current_month' => $this->getTotalPriceOfItemsAddedCurrentMonth(),
         ];
 
         return response()->json(['statistics' => $statistics]);
     }
 
-    public function showSpecificStat(Request $request, $option): JsonResponse
+    public function showSpecificStat($option): JsonResponse
     {
         $result = null;
 
@@ -62,7 +75,10 @@ class ItemStatisticsController extends Controller
                 $result = $this->getAveragePriceItem();
                 break;
             case 'website_highest_price':
-                $result = $this->getWebsiteWithHighestTotalPrice();
+                $result = $this->getWebsiteWithHighestPrice();
+                break;
+            case 'website_highest_total_price_items':
+                $result = $this->getWebsiteWithHighestTotalPriceItems();
                 break;
             case 'total_price_current_month':
                 $result = $this->getTotalPriceOfItemsAddedCurrentMonth();
